@@ -1,6 +1,11 @@
+import React, { useContext } from "react";
+import { View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { SafeAreaView, Text, View } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { PaperProvider } from "react-native-paper";
+
+// Components Imports
 import LoginPage from "../Game-Master/components/LoginPage";
 import EventDetails from "../Game-Master/components/EventDetails";
 import AccountPage from "./components/AccountPage";
@@ -10,20 +15,12 @@ import Collection from "./components/Collection";
 import MessagesScreen from "./components/MessagesScreen";
 import MyEventPage from "./components/MyEventPage";
 import EventList from "./components/EventsPage/EventList";
-import { createStackNavigator } from "@react-navigation/stack";
-import { PaperProvider, DefaultTheme } from "react-native-paper";
-import UserProvider from "./components/Context/ContextProvider";
-import { UserContext, DbUserContext } from "./components/Context/UserContext";
-import React, { useState, useContext, useEffect } from "react";
 import Chat from "./components/Chat";
-import io from "socket.io-client";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 import Footer from "./components/Footer";
-import { CommonActions } from "@react-navigation/native";
-
-import { Ionicons } from "@expo/vector-icons";
-
 import EventsPage from "./components/EventsPage/EventsPage";
+
+// Context Imports
+import UserProvider from "./components/Context/ContextProvider";
 import { NotificationCountContext } from "./components/Context/NotificationCountContext";
 
 const Stack = createStackNavigator();
@@ -31,115 +28,54 @@ const Drawer = createDrawerNavigator();
 const EventsStack = createStackNavigator();
 const CreateEventStack = createStackNavigator();
 
-function EventsStackNavigator() {
-  return (
-    <EventsStack.Navigator>
-      <EventsStack.Screen
-        name="EventsPage"
-        component={EventsPage}
-        options={{ headerShown: false }}
-      />
+const EventsStackNavigator = () => (
+  <EventsStack.Navigator>
+    <EventsStack.Screen name="EventsPage" component={EventsPage} options={{ headerShown: false }} />
+    <EventsStack.Screen name="Event Details" component={EventDetails} options={{ headerShown: false }} />
+    <EventsStack.Screen name="My Event" component={MyEventPage} options={{ headerShown: false }} />
+  </EventsStack.Navigator>
+);
 
-      <EventsStack.Screen
-        name="Event Details"
-        component={EventDetails}
-        options={{ headerShown: false }}
-      />
-      <EventsStack.Screen
-        name="My Event"
-        component={MyEventPage}
-        options={{ headerShown: false }}
-      />
-    </EventsStack.Navigator>
-  );
-}
-function CreateEventStackNavigator() {
-  return (
-    <CreateEventStack.Navigator
-          style={{ backgroundColor: "rgb(37, 35, 42)" }}
-    >
-      <CreateEventStack.Screen
-        name="Create Event"
-        component={CreateEvent}
-        options={{ headerShown: false }}
-      />
-      <CreateEventStack.Screen
-        name="My Event"
-        component={MyEventPage}
-        options={{ headerShown: false }}
-      />
-    </CreateEventStack.Navigator>
-  );
-}
+const CreateEventStackNavigator = () => (
+  <CreateEventStack.Navigator style={{ backgroundColor: "rgb(37, 35, 42)" }}>
+    <CreateEventStack.Screen name="Create Event" component={CreateEvent} options={{ headerShown: false }} />
+    <CreateEventStack.Screen name="My Event" component={MyEventPage} options={{ headerShown: false }} />
+  </CreateEventStack.Navigator>
+);
 
-function MainDrawer({ navigation }) {
-  const { notificationCount, setNotificationCount } = useContext(
-    NotificationCountContext
-  );
+const MainDrawer = ({ navigation }) => {
+  const { notificationCount } = useContext(NotificationCountContext);
 
   return (
-    <View
-      style={{ flex: 1 }}
-   
-    >
-      <Drawer.Navigator
-       
-        screenOptions={{
-          headerShown: true,
-          headerStyle: { backgroundColor: "black" },
-          headerTintColor: "white",
-        }}
-      >
-        <Drawer.Screen
-          
-          name="My Account"
-          component={AccountPage}
-        />
+    <View style={{ flex: 1 }}>
+      <Drawer.Navigator screenOptions={{ headerShown: true, headerStyle: { backgroundColor: "black" }, headerTintColor: "white" }}>
+        <Drawer.Screen name="My Account" component={AccountPage} />
         <Drawer.Screen name="Events" component={EventsStackNavigator} />
         <Drawer.Screen name="Collection" component={Collection} />
         <Drawer.Screen name="Chat" component={Chat} />
-        <Drawer.Screen
-          name="Create Event"
-          component={CreateEventStackNavigator}
-        />
-        <Drawer.Screen
-          name="Notifications"
-          component={MessagesScreen}
-          options={({ route }) => ({
-            drawerLabel:
-              notificationCount > 0
-                ? "Notifications: " + notificationCount
-                : "Notifications",
-            drawerLabelStyle: {
-              color: notificationCount > 0 ? "red" : "grey",
-          
-             
-            },
-          })}
-        />
+        <Drawer.Screen name="Create Event" component={CreateEventStackNavigator} />
+        <Drawer.Screen name="Notifications" component={MessagesScreen} options={{ drawerLabel: notificationCount > 0 ? `Notifications: ${notificationCount}` : "Notifications", drawerLabelStyle: { color: notificationCount > 0 ? "red" : "grey" } }} />
       </Drawer.Navigator>
       <Footer />
     </View>
   );
-}
+};
 
-function App() {
-  return (
-    <UserProvider>
-      <PaperProvider>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Login" component={LoginPage} />
-            <Stack.Screen name="Create Account" component={CreateAccount} />
-            <Stack.Screen name="MainDrawer" component={MainDrawer} />
-            <Stack.Screen name="EventDetails" component={EventDetails} />
-            <Stack.Screen name="EventList" component={EventList} />
-            <Stack.Screen name="MyEventPage" component={MyEventPage} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
-    </UserProvider>
-  );
-}
+const App = () => (
+  <UserProvider>
+    <PaperProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginPage} />
+          <Stack.Screen name="Create Account" component={CreateAccount} />
+          <Stack.Screen name="MainDrawer" component={MainDrawer} />
+          <Stack.Screen name="EventDetails" component={EventDetails} />
+          <Stack.Screen name="EventList" component={EventList} />
+          <Stack.Screen name="MyEventPage" component={MyEventPage} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
+  </UserProvider>
+);
 
 export default App;
